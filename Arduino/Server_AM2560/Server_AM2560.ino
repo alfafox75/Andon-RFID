@@ -20,7 +20,7 @@ String dataString = "";
 byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
 //indirizzo ip dell'Arduino
 IPAddress ip(192, 168, 137, 200);
-IPAddress server(192, 168, 2, 97);
+IPAddress server(10, 162, 128, 57);
  
 EthernetClient client;
 
