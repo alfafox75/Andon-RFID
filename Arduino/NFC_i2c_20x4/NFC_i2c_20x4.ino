@@ -1,3 +1,17 @@
+/*  pin    4 buzzer
+ *  pin   22 RL1
+ *  pin   24 RL2 
+ *  pin   26 RL3 
+ *  pin   28 RL4 
+ *  
+ *  pin   30 LED1 verde 
+ *  pin   32 LED2 giallo
+ *  pin   34 LED3 rosso
+ *  
+ *  pin   36 tastiera giallo
+ *  pin   38 tastiera roso
+*/
+
   #include <SPI.h>
   #include <String.h>
   #include <Wire.h>
@@ -15,8 +29,9 @@
 
 //Display
   #include <LiquidCrystal_I2C.h> // libreria di gestione del display lcd
-  LiquidCrystal_I2C display(0x27, 2, 1, 0, 4, 5, 6, 7, 3, POSITIVE);
-
+//  LiquidCrystal_I2C display(0x3F, 2, 1, 0, 4, 5, 6, 7, 3, POSITIVE);
+  LiquidCrystal_I2C display(0x3F,20,4);
+  
 // Definizione variabili
   int ledVerde = 30;
   int ledGiallo = 32;
@@ -34,8 +49,8 @@
   String UIDassist = "";
   byte bGlobalErr;
   char node_id[3] = {1,0,0}; //LoRa End Node ID 100
-  char client_id[14] = {'1','2','3','4','5','6','7','8','9','0','1','2','3','4'}; //LoRa End Node ID 100
-  String BOX_id ="12345678901234";
+  char client_id[14] = {'1','2','3','4','5','6','7','8','9','0','1','2','3','5'}; //LoRa End Node ID 100
+  String BOX_id ="12345678901235";
   char user_id[14]   = {'0','0','0','0','0','0','0','0','0','0','0','0','0','0'};
   char state_id[1]   = {'1'};
   String stringOne;
@@ -51,28 +66,30 @@ void setup(void)
   digitalWrite(ledGiallo, HIGH);
   pinMode(ledRosso, OUTPUT);
   digitalWrite(ledRosso, HIGH);
-  pinMode(rl1, OUTPUT);
-  digitalWrite(rl1, HIGH);
-  pinMode(rl2, OUTPUT);
-  digitalWrite(rl2, HIGH);
-  pinMode(rl3, OUTPUT);
-  digitalWrite(rl3, HIGH);
-  pinMode(rl4, OUTPUT);
-  digitalWrite(rl4, HIGH);
+//  pinMode(rl1, OUTPUT);
+//  digitalWrite(rl1, HIGH);
+//  pinMode(rl2, OUTPUT);
+//  digitalWrite(rl2, HIGH);
+//  pinMode(rl3, OUTPUT);
+//  digitalWrite(rl3, HIGH);
+//  pinMode(rl4, OUTPUT);
+//  digitalWrite(rl4, HIGH);
   pinMode(buzPin, OUTPUT);
   tone(buzPin,1000,200);
   delay(2000);
-  digitalWrite(ledGiallo, LOW);
-  digitalWrite(ledRosso, LOW);
-  digitalWrite(rl1, LOW);
-  digitalWrite(rl2, LOW);
-  digitalWrite(rl3, LOW);
-  digitalWrite(rl4, LOW);
+//  digitalWrite(ledGiallo, LOW);
+//  digitalWrite(ledRosso, LOW);
+//  digitalWrite(rl1, LOW);
+//  digitalWrite(rl2, LOW);
+//  digitalWrite(rl3, LOW);
+//  digitalWrite(rl4, LOW);
 
   Serial.begin(9600);
   Serial.println("Serial OK!");
 
-  display.begin(20, 4);
+//  display.begin(20, 4);
+  display.init(); 
+  display.backlight();
   
   Serial.println("Display OK!");
   display.clear();
@@ -114,10 +131,47 @@ void setup(void)
   Serial.print("Found chip PN5"); Serial.println((versiondata>>24) & 0xFF, HEX); 
   Serial.print("Firmware ver. "); Serial.print((versiondata>>16) & 0xFF, DEC); 
   Serial.print('.'); Serial.println((versiondata>>8) & 0xFF, DEC);
-  
+
+byte error, address;
+  int nDevices;
+ 
+  Serial.println("Scanning...");
+ 
+  nDevices = 0;
+  for(address = 1; address < 127; address++ )
+  {
+    // The i2c_scanner uses the return value of
+    // the Write.endTransmisstion to see if
+    // a device did acknowledge to the address.
+    Wire.beginTransmission(address);
+    error = Wire.endTransmission();
+ 
+    if (error == 0)
+    {
+      Serial.print("I2C device found at address 0x");
+      if (address<16)
+        Serial.print("0");
+      Serial.print(address,HEX);
+      Serial.println("  !");
+ 
+      nDevices++;
+    }
+    else if (error==4)
+    {
+      Serial.print("Unknown error at address 0x");
+      if (address<16)
+        Serial.print("0");
+      Serial.println(address,HEX);
+    }    
+  }
+  if (nDevices == 0)
+    Serial.println("No I2C devices found\n");
+  else
+    Serial.println("done\n");
+
   // configure board to read RFID tags
   nfc.SAMConfig();
-  digitalWrite(rl1, HIGH);
+//  digitalWrite(rl1, HIGH);
   Serial.println("Waiting for an ISO14443A Card ...");
 }
 
@@ -172,7 +226,7 @@ void loop(void) {
   }
   display.setCursor(0, 3);
   String codiceLetto ="";
-  String st="";
+//  String st="";
   String UIDB="";
   byte i;
   uint8_t success;
@@ -223,7 +277,7 @@ void loop(void) {
       BOX_id.toCharArray(client_id, 15);
       codiceLetto.toCharArray(user_id, 15);
       Serial.println(user_id);
-      SendMSG (user_id, state_id);
+      SendMSG (user_id);
       digitalWrite(ledVerde, LOW);
       tone(buzPin,1000,500);
     }
@@ -243,7 +297,7 @@ void loop(void) {
       BOX_id.toCharArray(client_id, 15);
       codiceLetto.toCharArray(user_id, 15);
       Serial.println(user_id);
-      SendMSG (user_id, state_id);
+      SendMSG (user_id);
     }
     delay(5000);
   }
@@ -252,10 +306,10 @@ void loop(void) {
     delay(5000);
   }
   display.clear();
-  relectrl();<<
+ 
 }  
 
-void SendMSG (char user_id[14], char state_id[1])
+void SendMSG (char user_id[14])
 {
     String Stat_ID="";
     char data[50] = {0} ;
@@ -360,30 +414,5 @@ void SendMSG (char user_id[14], char state_id[1])
     Serial.println("");
 }
 
-void relectrl() {
-  if (String(state_id[0]) == "3") {
-    digitalWrite(rl1, LOW);
-    digitalWrite(rl2, LOW);
-    digitalWrite(rl3, HIGH);
-    digitalWrite(rl4, LOW);
-  }
-  if (String(state_id[0]) == "2") {
-    digitalWrite(rl1, LOW);
-    digitalWrite(rl2, HIGH);
-    digitalWrite(rl3, LOW);
-    digitalWrite(rl4, LOW);
-  }
-  if (String(state_id[0]) == "1") {
-    digitalWrite(rl1, HIGH);
-    digitalWrite(rl2, LOW);
-    digitalWrite(rl3, LOW);
-    digitalWrite(rl4, LOW);
-  }
-  if (String(state_id[0]) == "4") {
-    digitalWrite(rl1, LOW);
-    digitalWrite(rl2, LOW);
-    digitalWrite(rl3, LOW);
-    digitalWrite(rl4, HIGH);
-  }
-}
+
 

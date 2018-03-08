@@ -27,7 +27,7 @@ RH_RF95 rf95;
 byte bGlobalErr;
 char node_id[3] = {1,0,0}; //LoRa End Node ID 100
 char client_id[14] = {'a','b','c','d','e','f','g','h','i','l','m','n','o','p'}; //LoRa End Node ID 100
-char user_id[14] = {'1','2','3','4','5','6','7','8','9','0','1','2','3','4'};
+char user_id[14] = {'1','2','3','4','5','6','7','8','9','0','1','2','3','5'};
 char state_id[3] ={'0','1','2'};
 String stringOne;
 float frequency = 868.0;
