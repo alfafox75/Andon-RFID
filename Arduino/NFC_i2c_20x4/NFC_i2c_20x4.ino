@@ -30,7 +30,7 @@
 //Display
   #include <LiquidCrystal_I2C.h> // libreria di gestione del display lcd
 //  LiquidCrystal_I2C display(0x3F, 2, 1, 0, 4, 5, 6, 7, 3, POSITIVE);
-  LiquidCrystal_I2C display(0x27,20,4);
+  LiquidCrystal_I2C display(0x3F,20,4);
   
 // Definizione variabili
   int ledVerde = 30;
@@ -282,7 +282,6 @@ void loop(void) {
       Serial.println(user_id);
       Serial.print("STATO: ");
       Serial.println(char(state_id[0]));
-<<<<<<< HEAD
 //      SendMSG (user_id, state_id[0]);
 
 // prova
@@ -392,10 +391,6 @@ char data[50] = {0} ;
 // fine prova
 
 //      relectrl();
-=======
-      SendMSG (user_id, state_id[0]);
-      relectrl();
->>>>>>> a830a1f73998f91964400a34d9e0ccca87f05492
       digitalWrite(ledVerde, LOW);
       tone(buzPin,1000,500);
     }
@@ -410,7 +405,6 @@ char data[50] = {0} ;
       display.print("Intervento eseguito");
       display.setCursor(0, 2);
       display.print(codiceLetto);
-<<<<<<< HEAD
       tone(buzPin,1000,500);
       codiceLetto.toCharArray(user_id, 15);
       Serial.println(user_id);
@@ -514,16 +508,6 @@ char data[50] = {0} ;
            Serial.println("recv failed");//
            rf95.send(sendBuf, strlen((char*)sendBuf));//resend if no reply
         }
-=======
-      state_id[0]='1';
-      Serial.print("STATO: ");
-      Serial.println(char(state_id[0]));
-      tone(buzPin,1000,500);
-      codiceLetto.toCharArray(user_id, 15);
-      Serial.println(user_id);
-      SendMSG (user_id, state_id[0]);
-      relectrl();
->>>>>>> a830a1f73998f91964400a34d9e0ccca87f05492
     }
     else
     {
@@ -539,11 +523,7 @@ char data[50] = {0} ;
     delay(2000);
   }
   else {
-<<<<<<< HEAD
 //    relectrl();
-=======
-    relectrl();
->>>>>>> a830a1f73998f91964400a34d9e0ccca87f05492
     tone(buzPin,500,500);
     delay(2000);
   }
@@ -582,11 +562,7 @@ void SendMSG (char *user_id, char *state_id)
 //    data[31] = state_id[0];
     Serial.print(char(data[31]));
     Serial.print(" - STATO: ");
-<<<<<<< HEAD
     Serial.println(String(state_id));
-=======
-    Serial.println(char(state_id));
->>>>>>> a830a1f73998f91964400a34d9e0ccca87f05492
         
     uint16_t crcData = CRC16((unsigned char*)data,dataLength);//get CRC DATA
     
@@ -664,45 +640,27 @@ void SendMSG (char *user_id, char *state_id)
 }
 
 void relectrl() {
-<<<<<<< HEAD
   Serial.print("STATO Relè: ");
   Serial.println(String(state_id[0]));
   if (String(state_id[0]) == "3") {
-=======
-  Serial.print("STATO: ");
-  Serial.println(String(state_id[0]));
-  if (char(state_id[0]) == "3") {
->>>>>>> a830a1f73998f91964400a34d9e0ccca87f05492
     digitalWrite(rl1, LOW);
     digitalWrite(rl2, LOW);
     digitalWrite(rl3, HIGH);
     digitalWrite(rl4, LOW);
   }
-<<<<<<< HEAD
   if (String(state_id[0]) == "2") {
-=======
-  if (char(state_id[0]) == "2") {
->>>>>>> a830a1f73998f91964400a34d9e0ccca87f05492
     digitalWrite(rl1, LOW);
     digitalWrite(rl2, HIGH);
     digitalWrite(rl3, LOW);
     digitalWrite(rl4, LOW);
   }
-<<<<<<< HEAD
   if (String(state_id[0]) == "1") {
-=======
-  if (char(state_id[0]) == "1") {
->>>>>>> a830a1f73998f91964400a34d9e0ccca87f05492
     digitalWrite(rl1, HIGH);
     digitalWrite(rl2, LOW);
     digitalWrite(rl3, LOW);
     digitalWrite(rl4, LOW);
   }
-<<<<<<< HEAD
   if (String(state_id[0]) == "4") {
-=======
-  if (char(state_id[0]) == "4") {
->>>>>>> a830a1f73998f91964400a34d9e0ccca87f05492
     digitalWrite(rl1, LOW);
     digitalWrite(rl2, LOW);
     digitalWrite(rl3, LOW);
