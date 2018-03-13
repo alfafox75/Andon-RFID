@@ -145,13 +145,13 @@ void loop()
 
 void uploadData(String client_id, String user_id, String state_id) {
   // form the string for the URL parameter, be careful about the required "
-//  String upload_url = "http://192.168.2.97/arduino/test.php?device=";
+//  String upload_url = "http://10.162.128.57/arduino/test.php?device=";
 //  upload_url += client_id;
 //  upload_url += "&user=";
 //  upload_url += user_id;
 //  upload_url += "&state=";
 //  upload_url += state_id;
-  String upload_url = "http://192.168.137.1/TagManager/handleRequestBox.php?box=";
+  String upload_url = "http://10.162.128.57/TagManager/handleRequestBox.php?box=";
   upload_url += client_id;
   upload_url += "&user=";
   upload_url += user_id;

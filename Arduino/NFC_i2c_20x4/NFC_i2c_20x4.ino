@@ -49,7 +49,7 @@
   String UIDassist = "";
   byte bGlobalErr;
   char node_id[3] = {1,0,0}; //LoRa End Node ID 100
-  char client_id[14] = {'1','2','3','4','5','6','7','8','9','0','1','2','3','5'}; //LoRa End Node ID 100
+  char client_id[14] = {'1','2','3','4','5','6','7','8','9','0','1','2','3','6'}; //LoRa End Node ID 100
   char user_id[14]   = {'0','0','0','0','0','0','0','0','0','0','0','0','0','0'};
   char state_id[1] = {'1'};
   String stringOne;
