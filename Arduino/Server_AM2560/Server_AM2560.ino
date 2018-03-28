@@ -23,7 +23,7 @@ IPAddress ip(172, 16, 113, 200);
 IPAddress gateway(172, 16, 113, 1);
 IPAddress subnet(255, 255, 255, 0);
 
-IPAddress server(10, 162, 128, 57);
+IPAddress server(10, 162, 128, 65);
  
 EthernetClient client;
 
@@ -39,16 +39,16 @@ void setup()
   
   Serial.println("LoRa Gateway 2 Web Service  --");
 
-  if (Ethernet.begin(mac) == 0)
-  {
-    Serial.println("Configurazione DHCP fallita!");
-    Ethernet.begin(mac, ip, gateway, subnet); 
-  }
-  else
-  {
-    Serial.println("Configurazione DHCP OK!");
+//  if (Ethernet.begin(mac) == 0)
+//  {
+//    Serial.println("Configurazione DHCP fallita!");
+   Ethernet.begin(mac, ip, gateway, gateway, subnet); 
+//  }
+//  else
+//  {
+//    Serial.println("Configurazione DHCP OK!");
     Serial.println(Ethernet.localIP());
-  }
+//  }
   
   delay(1000);
 }
@@ -172,7 +172,7 @@ void uploadData(String client_id, String user_id, String state_id) {//Upload Dat
 
 
   // form the string for the URL parameter, be careful about the required "
-  String upload_url = "GET /TagManager/handleRequestBox.php?box=";
+  String upload_url = "GET /handleRequestBox.php?box=";
   upload_url += client_id;
   upload_url += "&user=";
   upload_url += user_id;
@@ -182,7 +182,7 @@ void uploadData(String client_id, String user_id, String state_id) {//Upload Dat
   Serial.println(upload_url);
   Serial.print("Connessione... ");
  
-  if (client.connect(server, 80))
+  if (client.connect(server, 8088))
   {
     Serial.print("- Connesso... ");
     //invio la richiesta al server
