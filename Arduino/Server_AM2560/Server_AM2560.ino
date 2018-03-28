@@ -19,7 +19,10 @@ String dataString = "";
  
 byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
 //indirizzo ip dell'Arduino
-IPAddress ip(192, 168, 137, 200);
+IPAddress ip(172, 16, 113, 200);
+IPAddress gateway(172, 16, 113, 1);
+IPAddress subnet(255, 255, 255, 0);
+
 IPAddress server(10, 162, 128, 57);
  
 EthernetClient client;
@@ -39,7 +42,7 @@ void setup()
   if (Ethernet.begin(mac) == 0)
   {
     Serial.println("Configurazione DHCP fallita!");
-    Ethernet.begin(mac, ip);
+    Ethernet.begin(mac, ip, gateway, subnet); 
   }
   else
   {
@@ -169,12 +172,12 @@ void uploadData(String client_id, String user_id, String state_id) {//Upload Dat
 
 
   // form the string for the URL parameter, be careful about the required "
-  String upload_url = "GET /arduino/test.php?device=";
+  String upload_url = "GET /TagManager/handleRequestBox.php?box=";
   upload_url += client_id;
   upload_url += "&user=";
   upload_url += user_id;
-  upload_url += "&state=";
-  upload_url += state_id;
+  upload_url += "&act=";
+  upload_url += state_id;  
   upload_url += " HTTP/1.1";
   Serial.println(upload_url);
   Serial.print("Connessione... ");
