@@ -7,6 +7,7 @@
 #include <RH_RF95.h>
 #include <Ethernet.h>
 #include <String.h>
+#include <SoftwareSerial.h>
 
 RH_RF95 rf95(5, 2);
 
@@ -24,12 +25,15 @@ IPAddress gateway(172, 16, 113, 1);
 IPAddress subnet(255, 255, 255, 0);
 
 IPAddress server(10, 162, 128, 65);
+IPAddress port(8088);
  
 EthernetClient client;
 
 void setup()
 {
   Serial.begin(9600);
+
+   
   if (!rf95.init())
       Serial.println("LoRa init failed");
   // Setup ISM frequency
@@ -182,7 +186,7 @@ void uploadData(String client_id, String user_id, String state_id) {//Upload Dat
   Serial.println(upload_url);
   Serial.print("Connessione... ");
  
-  if (client.connect(server, 8088))
+  if (client.connect(server, port))
   {
     Serial.print("- Connesso... ");
     //invio la richiesta al server

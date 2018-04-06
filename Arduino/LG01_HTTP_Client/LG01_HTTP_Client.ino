@@ -94,18 +94,21 @@ void loop()
           uint8_t data[] = "";//Reply
 
           Console.print("Response: ");
-          for (int i = 0; i < 3; i++) {
-            data[i] = (buf[i]);
-            Console.print(data[i], HEX);
-          }
-
-          
+//          for (int i = 0; i < 3; i++) {
+//            data[i] = (buf[i]);
+//            Console.print(data[i], HEX);
+//          }
+          data[0] = buf[0];
+          Console.print(data[0]);
+          data[1] = buf[1];
+          Console.print(data[1]);
+          data[2] = buf[2];
+          Console.print(data[2]);
           data[3] = (buf[31]);
           Console.print(char(data[3]));
-        
           Console.println();
 
-          rf95.send(data, 4);// Send Reply to LoRa Node
+          rf95.send(data, 5);// Send Reply to LoRa Node
           rf95.waitPacketSent();
 
           String client_id = "";

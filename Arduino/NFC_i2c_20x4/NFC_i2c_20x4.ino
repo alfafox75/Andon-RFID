@@ -30,13 +30,13 @@
 //Display
   #include <LiquidCrystal_I2C.h> // libreria di gestione del display lcd
 //  LiquidCrystal_I2C display(0x3F, 2, 1, 0, 4, 5, 6, 7, 3, POSITIVE);
-  LiquidCrystal_I2C display(0x27,20,4);
+  LiquidCrystal_I2C display(0x3F,20,4);
   
 // Definizione variabili
   int ledVerde = 30;
   int ledGiallo = 32;
   int ledRosso = 34;
-  int buzPin = 4;
+  int buzPin = 40;
   int swGiallo = 36;
   int swRosso = 38;
   int rl1 =22;
@@ -49,7 +49,7 @@
   String UIDassist = "";
   byte bGlobalErr;
   char node_id[3] = {1,0,0}; //LoRa End Node ID 100
-  char client_id[14] = {'1','2','3','4','5','6','7','8','9','0','1','2','3','5'}; //LoRa End Node ID 100
+  char client_id[14] = {'1','2','3','4','5','6','7','8','9','0','1','2','3','4'}; //LoRa End Node ID 100
   char user_id[14]   = {'0','0','0','0','0','0','0','0','0','0','0','0','0','0'};
   char state_id = '1';
   String stringOne;
@@ -176,8 +176,6 @@ void setup(void)
   nfc.SAMConfig();
   digitalWrite(rl1, HIGH);
   Serial.println("Waiting for an ISO14443A Card ...");
-  Serial.print("STATO: ");
-  Serial.println(state_id);
 }
 
 uint16_t calcByte(uint16_t crc, uint8_t b)
@@ -219,8 +217,6 @@ void loop(void) {
     digitalWrite(ledRosso, HIGH);
     digitalWrite(ledGiallo, LOW);
     state_id='3';
-    Serial.print("STATO: ");
-    Serial.println(state_id);
     t=0;
   }
   else if (digitalRead(swGiallo) == LOW && digitalRead(ledVerde) == 1)
@@ -228,8 +224,6 @@ void loop(void) {
     digitalWrite(ledGiallo, HIGH);
     digitalWrite(ledRosso, LOW);
     state_id='2';
-    Serial.print("STATO: ");
-    Serial.println(state_id);
     t=0;
   }
   display.setCursor(0, 3);
@@ -282,8 +276,6 @@ void loop(void) {
       display.print(codiceLetto);
       codiceLetto.toCharArray(user_id, 15);
       Serial.println(user_id);
-      Serial.print("STATO: ");
-      Serial.println(state_id);
       SendMSG (user_id, state_id);
       relectrl();
       digitalWrite(ledVerde, LOW);
@@ -301,8 +293,6 @@ void loop(void) {
       display.setCursor(0, 2);
       display.print(codiceLetto);
       state_id='1';
-      Serial.print("STATO: ");
-      Serial.println(state_id);
       tone(buzPin,1000,500);
       codiceLetto.toCharArray(user_id, 15);
       Serial.println(user_id);
@@ -312,6 +302,9 @@ void loop(void) {
     delay(5000);
   }
   else {
+    display.clear();
+    display.setCursor(1, 1);
+    display.print("Errore  Operazione");
     relectrl();
     tone(buzPin,500,500);
     delay(5000);
@@ -349,9 +342,7 @@ void SendMSG (char *user_id, char state_id)
 
     Serial.print("STATE_ID:  ");  
     data[31] = state_id;
-    Serial.print(char(data[31]));
-    Serial.print(" - STATO: ");
-    Serial.println(state_id);
+    Serial.println(char(data[31]));
         
     uint16_t crcData = CRC16((unsigned char*)data,dataLength);//get CRC DATA
     
@@ -381,32 +372,41 @@ void SendMSG (char *user_id, char state_id)
         Serial.print(" ");
     }
     Serial.println();
-    Serial.println("A");
     rf95.send(sendBuf, dataLength+2);//Send LoRa Data
-     
-
-    Serial.println("B");
+    rf95.waitPacketSent();
     if (rf95.waitAvailableTimeout(3000))// Check If there is reply in 3 seconds.
     {
         // Should be a reply message for us now   
-        Serial.println("C");
         if (rf95.recv(buf, &len))//check if reply message is correct
        {
-            Serial.println("D");
-            if(buf[0] == node_id[0] ||buf[1] == node_id[2] ||buf[2] == node_id[2] ) // Check if reply message has the our node ID
+          Serial.print("Get LoRa Packet: ");
+          Serial.println((char*)buf);
+    
+          if(buf[0] == 1 || buf[1] == 0 || buf[2] == 0 ) // Check if reply message has the our node ID
            {
+              uint8_t data[] = "";//Reply
               digitalWrite(3, HIGH);
               //tone(4,4000,200);
               Serial.print("Got Reply from Gateway: ");//print reply
-              for (int i = 0; i < 3; i++) {
+              for (int i = 0; i < 4; i++) {
                 Serial.print(buf[i], HEX);
               }
-              Serial.print(char(buf[3]));
               Serial.println("");
+              
+              
+              Serial.print("RSSI: ");  // print RSSI
+              Serial.println(rf95.lastRssi(), DEC);  
+              
+              display.clear();
+              display.setCursor(0, 1);
+              display.print("Risposta: ");      
+              display.setCursor(10, 1);
+              display.print(buf[3], HEX);      
+              display.setCursor(0, 2);
+              display.print("RSSI: ");  // print RSSI
+              display.setCursor(10, 2);
+              display.print(rf95.lastRssi(), DEC);  
               delay(2000);
-//              
-//              Serial.print("RSSI: ");  // print RSSI
-//              Serial.println(rf95.lastRssi(), DEC);        
 
            }    
         }
@@ -418,17 +418,12 @@ void SendMSG (char *user_id, char state_id)
     }
     else
     {
-        Serial.println("E");
         Serial.println("No reply, is LoRa gateway running?");//No signal reply
         rf95.send(sendBuf, strlen((char*)sendBuf));//resend data
     }
-    Serial.println("F");
-    Serial.println("");
 }
 
 void relectrl() {
-  Serial.print("STATO RELE: ");
-  Serial.println(state_id);
   if (state_id == '3') {
     digitalWrite(rl1, LOW);
     digitalWrite(rl2, LOW);
