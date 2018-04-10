@@ -8,6 +8,11 @@
 #include <Ethernet.h>
 #include <String.h>
 #include <SoftwareSerial.h>
+#include "utility/socket.h"
+#include <avr/io.h>
+#include <avr/wdt.h>
+
+#define Reset_AVR() wdt_enable(WDTO_30MS); while(1) {}
 
 RH_RF95 rf95(5, 2);
 
@@ -16,6 +21,9 @@ uint16_t recCRCData = 0;
 float frequency = 868.0;
 String dataString = "";
 
+String readString, readString1;
+int x=0;
+char lf=10;
 
  
 byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
@@ -25,15 +33,32 @@ IPAddress gateway(172, 16, 113, 1);
 IPAddress subnet(255, 255, 255, 0);
 
 IPAddress server(10, 162, 128, 65);
-IPAddress port(8088);
+int port(8088);
+//IPAddress server(192, 168, 2, 97);
+//IPAddress port(80);
  
 EthernetClient client;
 
+int rxPin = 3;
+int txPin = 2;
+
+int tConnect = 0;
+int timerConnect = 0;
+
+SoftwareSerial bluetooth(rxPin, txPin);
+
 void setup()
 {
+  pinMode(4,OUTPUT);
+  pinMode(5,OUTPUT);
+  pinMode(10,OUTPUT);
+  digitalWrite(4,HIGH);
+  digitalWrite(5,HIGH);
+  digitalWrite(10,HIGH);
+  
   Serial.begin(9600);
-
-   
+  bluetooth.begin(9600);
+  
   if (!rf95.init())
       Serial.println("LoRa init failed");
   // Setup ISM frequency
@@ -43,17 +68,18 @@ void setup()
   
   Serial.println("LoRa Gateway 2 Web Service  --");
 
-//  if (Ethernet.begin(mac) == 0)
-//  {
-//    Serial.println("Configurazione DHCP fallita!");
+  if (Ethernet.begin(mac) == 0)
+  {
+    Serial.println("Configurazione DHCP fallita!");
    Ethernet.begin(mac, ip, gateway, gateway, subnet); 
-//  }
-//  else
-//  {
-//    Serial.println("Configurazione DHCP OK!");
-    Serial.println(Ethernet.localIP());
-//  }
-  
+  }
+  else
+  {
+    Serial.println("Configurazione DHCP OK!");
+  }
+  Serial.println(Ethernet.localIP());
+  Serial.println(server);
+  Serial.println(port);
   delay(1000);
 }
 
@@ -95,9 +121,10 @@ uint16_t recdata( unsigned char* recbuf, int Length)
     recCRCData |= recbuf[Length - 2];
 }
 
+void(* Riavvia)(void) = 0;
+
 void loop()
 {
-    //Serial.println(millis());
     if (rf95.waitAvailableTimeout(2000))// Listen Data from LoRa Node
     {
         uint8_t buf[RH_RF95_MAX_MESSAGE_LEN];//receive data buffer
@@ -105,6 +132,8 @@ void loop()
         if (rf95.recv(buf, &len))//Check if there is incoming data
         {
             recdata( buf, len);
+            Serial.print("Data length: ");
+            Serial.println(len);
             Serial.print("Get LoRa Packet: ");
             for (int i = 0; i < len; i++)
             {
@@ -116,23 +145,7 @@ void loop()
             { 
                 if(buf[0] == 1||buf[1] == 0||buf[2] ==0) //Check if the ID match the LoRa Node ID 100
                 {
-                    uint8_t data[] = "";//Reply 
-                    
-                    Serial.print("Response: ");
-                    for (int i = 0; i < 3; i++) {
-                      data[i] = (buf[i]);
-                      Serial.print(data[i], HEX);
-                    }
-
-                    for (int i = 3; i < 6; i++) {
-                      data[i] = (buf[i+28]);
-                      Serial.print(char(data[i]));
-                    }
-
-                    Serial.println();
-                    
-                    rf95.send(data, 6);// Send Reply to LoRa Node
-                    rf95.waitPacketSent();
+                    char data[] = "";//Reply 
                     
                     String client_id = "";
                     String user_id = "";
@@ -144,19 +157,44 @@ void loop()
                     Serial.print("Client ID: ");
                     Serial.println(client_id);
 
-                    for (int i = 17; i < 31; i++) {
-                      user_id += char(buf[i]);
+                    if (len >=20) {
+                      for (int i = 17; i < 31; i++) {
+                        user_id += char(buf[i]);
+                      }
+                      Serial.print("User   ID: ");
+                      Serial.println(user_id);
+  
+                      for (int i = 31; i < 32; i++) {
+                        state_id += char(buf[i]);
+                      }
+                      Serial.print("State  ID: ");
+                      Serial.println(state_id);
+  
+                      data[3] = uploadData(client_id, user_id, state_id);
+                      Serial.print("Response: ");
+                      for (int i = 0; i < 3; i++) {
+                        data[i] = (buf[i]);
+                        Serial.print(data[i], HEX);
+                      }
+                      Serial.print(data[3]);
+                      Serial.println();
+                      
+                      rf95.send(data, 6);// Send Reply to LoRa Node
+                      rf95.waitPacketSent();
                     }
-                    Serial.print("User   ID: ");
-                    Serial.println(user_id);
-
-                    for (int i = 31; i < 32; i++) {
-                      state_id += char(buf[i]);
+                    else {
+                      data[3] = requestState(client_id);
+                      Serial.print("Response: ");
+                      for (int i = 0; i < 3; i++) {
+                        data[i] = (buf[i]);
+                        Serial.print(data[i], HEX);
+                      }
+                      Serial.print(data[3]);
+                      Serial.println();
+                      
+                      rf95.send(data, 6);// Send Reply to LoRa Node
+                      rf95.waitPacketSent();
                     }
-                    Serial.print("State  ID: ");
-                    Serial.println(state_id);
-
-                    uploadData(client_id, user_id, state_id);
                 }
             } 
             else 
@@ -171,12 +209,66 @@ void loop()
       }
 }
 
-void uploadData(String client_id, String user_id, String state_id) {//Upload Data to ThingSpeak
-  // form the string for the API header parameter:
-
-
-  // form the string for the URL parameter, be careful about the required "
+char requestState(String client_id) 
+{
+  char c;
+  char cr;
   String upload_url = "GET /handleRequestBox.php?box=";
+//  String upload_url = "GET /TagManager/handleRequestBox.php?box=";
+  upload_url += client_id;
+  upload_url += "&color=1 HTTP/1.1";
+  Serial.print(server);
+  Serial.print(":");
+  Serial.print(port);
+  Serial.print(" - ");
+  Serial.println(upload_url);
+  Serial.print("Connessione... ");
+ 
+  if (client.connect(server, port))
+  {
+    Serial.println("- Connesso... ");
+    //invio la richiesta al server
+    client.println(upload_url);
+    client.println("Host: localhost");
+    client.println();
+  } 
+    else {
+      Serial.println("connection failed"); //error message if no client connect
+      Serial.println("Reboot Arduino");
+      Serial.println();
+      delay(1000);
+      Reset_AVR();
+    }
+    bool stwr = false;
+    while(client.connected() && !client.available()) delay(1); //waits for data
+    while (client.connected() || client.available()) { //connected or data available
+      c = client.read(); //gets byte from ethernet buffer
+      Serial.print(c);
+      if (stwr == true) {
+        if (c=='@') {
+          break; 
+        }
+        cr=c;
+        
+      }
+      if (c == '#') {
+        stwr = true;
+      }
+    }
+    Serial.println();
+    Serial.println("disconnecting.");
+    Serial.println("==================");
+    Serial.println();
+    client.stop(); //stop client
+    
+    return cr;
+}
+
+char uploadData(String client_id, String user_id, String state_id) {//Upload Data to ThingSpeak
+  char c;
+  char cr;
+  String upload_url = "GET /handleRequestBox.php?box=";
+//  String upload_url = "GET /TagManager/handleRequestBox.php?box=";
   upload_url += client_id;
   upload_url += "&user=";
   upload_url += user_id;
@@ -188,20 +280,40 @@ void uploadData(String client_id, String user_id, String state_id) {//Upload Dat
  
   if (client.connect(server, port))
   {
-    Serial.print("- Connesso... ");
+    Serial.println("- Connesso... ");
     //invio la richiesta al server
     client.println(upload_url);
     client.println("Host: localhost");
-    client.println("Connection: close");
     client.println();
-    //chiudo la connessione
-    client.stop();
-    Serial.println("- Invio eseguito");
+  } 
+    else {
+      Serial.println("connection failed"); //error message if no client connect
+      Serial.println("Reboot Arduino");
+      Serial.println();
+      delay(1000);
+      Reset_AVR();
+    }
+    bool stwr = false;
+    while(client.connected() && !client.available()) delay(1); //waits for data
+    while (client.connected() || client.available()) { //connected or data available
+      c = client.read(); //gets byte from ethernet buffer
+      Serial.print(c);
+      if (stwr == true) {
+        if (c=='@') {
+          break; 
+        }
+        cr=c;
+        
+      }
+      if (c == '#') {
+        stwr = true;
+      }
+    }
+    Serial.println();
+    Serial.println("disconnecting.");
+    Serial.println("==================");
+    Serial.println();
+    client.stop(); //stop client
     
-  }
-  else
-  {
-    Serial.println("Errore Connessione");
-  }
+    return cr;
 }
-
