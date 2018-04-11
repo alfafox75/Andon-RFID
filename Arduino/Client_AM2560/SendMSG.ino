@@ -1,4 +1,4 @@
-void SendMSG (char *user_id, char state_id)
+void SendMSG()
 {
     char data[50] = {0} ;
     int dataLength = 34; // Payload Length
@@ -26,10 +26,8 @@ void SendMSG (char *user_id, char state_id)
     Serial.println("");
 
     Serial.print("STATE_ID:  ");  
-    data[31] = state_id;
-    Serial.print(char(data[31]));
-    Serial.print(" - STATO: ");
-    Serial.println(state_id);
+    data[31] = newstate_id;
+    Serial.println(char(data[31]));
         
     uint16_t crcData = CRC16((unsigned char*)data,dataLength);//get CRC DATA
     
@@ -59,9 +57,10 @@ void SendMSG (char *user_id, char state_id)
         Serial.print(sendBuf[i],HEX);
         Serial.print(" ");
     }
+    Serial.println();
     rf95.send(sendBuf, dataLength+2);//Send LoRa Data
-    rf95.waitPacketSent(2000);
-    if (rf95.waitAvailableTimeout(3000))// Check If there is reply in 10 seconds.
+    rf95.waitPacketSent(3000);
+    if (rf95.waitAvailableTimeout(5000))// Check If there is reply in 10 seconds.
     {
         len = 4;
         if (rf95.recv(buf, &len))//check if reply message is correct
@@ -86,14 +85,17 @@ void SendMSG (char *user_id, char state_id)
         else
         {
            Serial.println("recv failed");//
-           rf95.send(sendBuf, strlen((char*)sendBuf));//resend if no reply
+//           rf95.send(sendBuf, strlen((char*)sendBuf));//resend if no reply
         }
     }
     else
     {
         Serial.println("No reply, is LoRa gateway running?");//No signal reply
-        rf95.send(sendBuf, strlen((char*)sendBuf));//resend data
+//        rf95.send(sendBuf, strlen((char*)sendBuf));//resend data
     }
     Serial.println("");
     relectrl();
+    tone(buzPin,1000,500);
+    delay(5000);
+    display.clear();
 }

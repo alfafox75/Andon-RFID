@@ -15,6 +15,10 @@
   #include <SPI.h>
   #include <String.h>
   #include <Wire.h>
+  #include <SimpleTimer.h>
+
+// Timer
+  SimpleTimer timer1; // timer richiesta stato
 
 // LoRa Shield
   #include <RH_RF95.h>
@@ -33,9 +37,9 @@
   LiquidCrystal_I2C display(0x3F,20,4);
   
 // Definizione variabili
-  int ledVerde = 30;
+  int ledVerde = 34;
   int ledGiallo = 32;
-  int ledRosso = 34;
+  int ledRosso = 30;
   int buzPin = 40;
   int swVerde = 27;
   int swGiallo = 25;
@@ -44,7 +48,6 @@
   int rl2 =24;
   int rl3 =26;
   int rl4 =28;
-  int t=0;
   
   String UIDrequest = "";
   String UIDassist = "";
@@ -53,12 +56,11 @@
   // ID BOX=12345678901238 
   char client_id[14] = {'1','2','3','4','5','6','7','8','9','0','1','2','3','8'}; //LoRa End Node ID 100
   char user_id[14]   = {'0','0','0','0','0','0','0','0','0','0','0','0','0','0'};
-  char state_id = '1';
+  char state_id = '0';
+  char newstate_id = '0';
   String stringOne;
   unsigned int count = 1;
   unsigned char sendBuf[50]={0};
-  int tColor = 0;
-  int timerColor = 0;
   uint16_t crcdata = 0;
   uint16_t recCRCData = 0;
      

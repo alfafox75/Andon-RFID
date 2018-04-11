@@ -46,8 +46,8 @@ void SendColor()
     }
     Serial.println();
     rf95.send(sendBuf, dataLength+2);//Send LoRa Data
-    rf95.waitPacketSent(2000); 
-    if (rf95.waitAvailableTimeout(3000))// Check If there is reply in 10 seconds.
+    rf95.waitPacketSent(3000); 
+    if (rf95.waitAvailableTimeout(5000))// Check If there is reply in 10 seconds.
     {
         len = 4;
         if (rf95.recv(buf, &len))//check if reply message is correct
@@ -64,9 +64,7 @@ void SendColor()
               if (char(buf[3])=='1') {state_id = '1';}
               else if (char(buf[3])=='2') {state_id = '2';}
               else if (char(buf[3])=='3') {state_id = '3';}
-              
-              delay(2000);
-              
+                           
               Serial.print("RSSI: ");  // print RSSI
               Serial.println(rf95.lastRssi(), DEC);        
            }    
@@ -82,7 +80,6 @@ void SendColor()
         Serial.println("No reply, is LoRa gateway running?");//No signal reply
         rf95.send(sendBuf, strlen((char*)sendBuf));//resend data
     }
-    
     Serial.println("");
     relectrl();
 }

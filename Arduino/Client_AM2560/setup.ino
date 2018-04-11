@@ -1,30 +1,29 @@
-void setup(void) 
-{
-  pinMode(swGiallo, INPUT_PULLUP);  
-  pinMode(swRosso, INPUT_PULLUP); 
+void setup(void) {
+  pinMode(swGiallo, INPUT);  
+  pinMode(swRosso, INPUT); 
+  pinMode(swVerde, INPUT); 
+  digitalWrite(swGiallo, HIGH);
+  digitalWrite(swRosso, HIGH);
+  digitalWrite(swVerde, HIGH);
   pinMode(ledVerde, OUTPUT);
-  digitalWrite(ledVerde, HIGH);
   pinMode(ledGiallo, OUTPUT);
-  digitalWrite(ledGiallo, HIGH);
   pinMode(ledRosso, OUTPUT);
+  digitalWrite(ledVerde, HIGH);
+  digitalWrite(ledGiallo, HIGH);
   digitalWrite(ledRosso, HIGH);
   pinMode(rl1, OUTPUT);
-  digitalWrite(rl1, HIGH);
   pinMode(rl2, OUTPUT);
-  digitalWrite(rl2, HIGH);
   pinMode(rl3, OUTPUT);
-  digitalWrite(rl3, HIGH);
   pinMode(rl4, OUTPUT);
+  digitalWrite(rl1, HIGH);
+  digitalWrite(rl2, HIGH);
+  digitalWrite(rl3, HIGH);
   digitalWrite(rl4, HIGH);
   pinMode(buzPin, OUTPUT);
   tone(buzPin,1000,200);
   delay(2000);
-//  digitalWrite(ledGiallo, LOW);
-//  digitalWrite(ledRosso, LOW);
-//  digitalWrite(rl1, LOW);
-//  digitalWrite(rl2, LOW);
-//  digitalWrite(rl3, LOW);
-//  digitalWrite(rl4, LOW);
+
+  timer1.setInterval(30000, SendColor);
 
   Serial.begin(9600);
   Serial.println("Serial OK!");

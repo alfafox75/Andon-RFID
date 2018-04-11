@@ -28,14 +28,17 @@ char lf=10;
  
 byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
 //indirizzo ip dell'Arduino
-IPAddress ip(172, 16, 113, 200);
-IPAddress gateway(172, 16, 113, 1);
+//IPAddress ip(172, 16, 113, 200);
+//IPAddress gateway(172, 16, 113, 1);
+//IPAddress subnet(255, 255, 255, 0);
+IPAddress ip(192, 168, 2, 67);
+IPAddress gateway(192, 168, 2, 1);
 IPAddress subnet(255, 255, 255, 0);
 
-IPAddress server(10, 162, 128, 65);
-int port(8088);
-//IPAddress server(192, 168, 2, 97);
-//IPAddress port(80);
+//IPAddress server(10, 162, 128, 65);
+//int port(8088);
+IPAddress server(192, 168, 2, 97);
+int port(80);
  
 EthernetClient client;
 
@@ -68,15 +71,15 @@ void setup()
   
   Serial.println("LoRa Gateway 2 Web Service  --");
 
-  if (Ethernet.begin(mac) == 0)
-  {
-    Serial.println("Configurazione DHCP fallita!");
+//  if (Ethernet.begin(mac) == 0)
+//  {
+//    Serial.println("Configurazione DHCP fallita!");
    Ethernet.begin(mac, ip, gateway, gateway, subnet); 
-  }
-  else
-  {
-    Serial.println("Configurazione DHCP OK!");
-  }
+//  }
+//  else
+//  {
+//    Serial.println("Configurazione DHCP OK!");
+//  }
   Serial.println(Ethernet.localIP());
   Serial.println(server);
   Serial.println(port);
@@ -213,8 +216,8 @@ char requestState(String client_id)
 {
   char c;
   char cr;
-  String upload_url = "GET /handleRequestBox.php?box=";
-//  String upload_url = "GET /TagManager/handleRequestBox.php?box=";
+//  String upload_url = "GET /handleRequestBox.php?box=";
+  String upload_url = "GET /TagManager/handleRequestBox.php?box=";
   upload_url += client_id;
   upload_url += "&color=1 HTTP/1.1";
   Serial.print(server);
@@ -267,8 +270,8 @@ char requestState(String client_id)
 char uploadData(String client_id, String user_id, String state_id) {//Upload Data to ThingSpeak
   char c;
   char cr;
-  String upload_url = "GET /handleRequestBox.php?box=";
-//  String upload_url = "GET /TagManager/handleRequestBox.php?box=";
+//  String upload_url = "GET /handleRequestBox.php?box=";
+  String upload_url = "GET /TagManager/handleRequestBox.php?box=";
   upload_url += client_id;
   upload_url += "&user=";
   upload_url += user_id;
