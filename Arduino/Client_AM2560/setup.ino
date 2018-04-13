@@ -28,16 +28,6 @@ void setup(void) {
   Serial.begin(9600);
   Serial.println("Serial OK!");
 
-//  display.begin(20, 4);
-  display.init(); 
-  display.backlight();
-  
-  Serial.println("Display OK!");
-  display.clear();
-  display.setCursor(0, 1);
-  display.print("RFID Assist v. 01.00");
-  delay(3000);
-  
   nfc.begin();
   Serial.println("NFC OK!");
 
@@ -92,6 +82,14 @@ void setup(void) {
       if (address<16)
         Serial.print("0");
       Serial.print(address,HEX);
+      if (address == 39) {
+        char adrdisplay = "0x27";
+        Serial.print(" - i2c Display");
+      }
+      if (address == 63) {
+        char adrdisplay = "0x3F";
+        Serial.print(" - i2c Display");
+      }
       Serial.println("  !");
  
       nDevices++;
@@ -104,6 +102,15 @@ void setup(void) {
       Serial.println(address,HEX);
     }    
   }
+
+  display.init(); 
+  display.backlight();
+  Serial.println("Display OK!");
+  display.clear();
+  display.setCursor(0, 1);
+  display.print("RFID Assist v. 01.00");
+  delay(3000);
+  
   if (nDevices == 0)
     Serial.println("No I2C devices found\n");
   else

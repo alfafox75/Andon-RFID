@@ -33,8 +33,8 @@
 
 //Display
   #include <LiquidCrystal_I2C.h> // libreria di gestione del display lcd
-//  LiquidCrystal_I2C display(0x3F, 2, 1, 0, 4, 5, 6, 7, 3, POSITIVE);
-  LiquidCrystal_I2C display(0x3F,20,4);
+  LiquidCrystal_I2C display(0x3F,20,4);  
+ 
   
 // Definizione variabili
   int ledVerde = 34;
@@ -53,7 +53,6 @@
   String UIDassist = "";
   byte bGlobalErr;
   char node_id[3] = {1,0,0}; //LoRa End Node ID 100
-  // ID BOX=12345678901238 
   char client_id[14] = {'1','2','3','4','5','6','7','8','9','0','1','2','3','8'}; //LoRa End Node ID 100
   char user_id[14]   = {'0','0','0','0','0','0','0','0','0','0','0','0','0','0'};
   char state_id = '0';

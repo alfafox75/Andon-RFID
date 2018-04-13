@@ -71,15 +71,20 @@ void SendColor()
         }
         else
         {
+           display.setCursor(0, 1);
+           display.print("****  ERRORE TX  ***");
            Serial.println("recv failed");//
            rf95.send(sendBuf, strlen((char*)sendBuf));//resend if no reply
         }
     }
     else
     {
+        display.setCursor(0, 1);
+        display.print("* NESSUNA RISPOSTA *");
         Serial.println("No reply, is LoRa gateway running?");//No signal reply
         rf95.send(sendBuf, strlen((char*)sendBuf));//resend data
     }
     Serial.println("");
     relectrl();
+    delay(2000);
 }

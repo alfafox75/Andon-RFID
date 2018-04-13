@@ -77,21 +77,30 @@ void SendMSG()
               if (char(buf[3])=='1') {state_id = '1';}
               else if (char(buf[3])=='2') {state_id = '2';}
               else if (char(buf[3])=='3') {state_id = '3';}
-              
+              else if (char(buf[3])=='N') {
+                display.setCursor(0, 1);
+                display.print("**** OPERAZIONE ****"); 
+                display.setCursor(0, 2);
+                display.print("**** NON VALIDA ****");
+              }
               Serial.print("RSSI: ");  // print RSSI
               Serial.println(rf95.lastRssi(), DEC);        
            }    
         }
         else
         {
+           display.setCursor(0, 1);
+           display.print("****  ERRORE TX  ***");
            Serial.println("recv failed");//
-//           rf95.send(sendBuf, strlen((char*)sendBuf));//resend if no reply
+           rf95.send(sendBuf, strlen((char*)sendBuf));//resend if no reply
         }
     }
     else
     {
+        display.setCursor(0, 1);
+        display.print("* NESSUNA RISPOSTA *");
         Serial.println("No reply, is LoRa gateway running?");//No signal reply
-//        rf95.send(sendBuf, strlen((char*)sendBuf));//resend data
+        rf95.send(sendBuf, strlen((char*)sendBuf));//resend data
     }
     Serial.println("");
     relectrl();

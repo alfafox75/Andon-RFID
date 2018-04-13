@@ -9,11 +9,12 @@ void loop(void) {
   uint8_t uidLength;                        // Length of the UID (4 or 7 bytes depending on ISO14443A card type)
     
   display.setCursor(0, 1);
-  display.print("*** Attesa CARD! ***");
+  display.print("*** Attesa TASTO ***");
   
   if (!digitalRead(swRosso))   {
     digitalWrite(ledRosso, HIGH);
-    Serial.print("Rosso");
+    display.setCursor(0, 1);
+    display.print("*** Attesa  CARD ***");
     success = nfc.readPassiveTargetID(PN532_MIFARE_ISO14443A, uid, &uidLength);
     newstate_id = '3';
     Serial.print(" - State: ");
@@ -34,15 +35,17 @@ void loop(void) {
     codiceLetto.toCharArray(user_id, 15);
     Serial.print(" - State: ");
     Serial.println(char(newstate_id));
-    Serial.println(success);
     if (success) {
+      display.setCursor(0, 1);
+      display.print("* INVIO  RICHIESTA *");
       SendMSG();
     }
   }
 
   if (!digitalRead(swGiallo)) {
     digitalWrite(ledGiallo, HIGH);
-    Serial.print("Giallo");
+    display.setCursor(0, 1);
+    display.print("*** Attesa  CARD ***");
     success = nfc.readPassiveTargetID(PN532_MIFARE_ISO14443A, uid, &uidLength);
     newstate_id = '2';
     Serial.print(" - State: ");
@@ -61,17 +64,19 @@ void loop(void) {
     codiceLetto.toCharArray(user_id, 15);
     Serial.print(" - State: ");
     Serial.println(char(newstate_id));
-    Serial.println(success);
     if (success) {
+      display.setCursor(0, 1);
+      display.print("* INVIO  RICHIESTA *");
       SendMSG();
     }
   }
 
   if (!digitalRead(swVerde)) {
     digitalWrite(ledVerde, HIGH);
+    display.setCursor(0, 1);
+    display.print("*** Attesa  CARD ***");
     success = nfc.readPassiveTargetID(PN532_MIFARE_ISO14443A, uid, &uidLength);
     newstate_id = '1';
-    Serial.print("Verde");
     Serial.print(" - State: ");
     Serial.println(char(newstate_id));
     Serial.print("Found a card! ");
@@ -88,8 +93,9 @@ void loop(void) {
     codiceLetto.toCharArray(user_id, 15);
     Serial.print(" - State: ");
     Serial.println(char(newstate_id));
-    Serial.println(success);
     if (success) {
+      display.setCursor(0, 1);
+      display.print("* INVIO  RICHIESTA *");
       SendMSG();
     }
   }
